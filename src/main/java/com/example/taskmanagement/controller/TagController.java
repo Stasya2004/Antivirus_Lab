@@ -1,7 +1,9 @@
 package com.example.taskmanagement.controller;
 
 import com.example.taskmanagement.model.Tag;
+import com.example.taskmanagement.model.Task;
 import com.example.taskmanagement.service.TagService;
+import com.example.taskmanagement.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,34 +12,53 @@ import java.util.List;
 @RequestMapping("/tags")
 public class TagController {
 
-    private final TagService service;
+    private final TagService tagService;
+    private final TaskService taskService;
 
-    public TagController(TagService service) {
-        this.service = service;
+    public TagController(TagService tagService, TaskService taskService) {
+        this.tagService = tagService;
+        this.taskService = taskService;
     }
+
+    /* ---------------- CRUD ---------------- */
 
     @GetMapping
     public List<Tag> getAll() {
-        return service.getAll();
+        return tagService.getAll();
     }
 
     @GetMapping("/{id}")
     public Tag getById(@PathVariable Long id) {
-        return service.getById(id);
+        return tagService.getById(id);
     }
 
     @PostMapping
     public Tag create(@RequestBody Tag tag) {
-        return service.create(tag);
+        return tagService.create(tag);
     }
 
     @PutMapping("/{id}")
     public Tag update(@PathVariable Long id, @RequestBody Tag tag) {
-        return service.update(id, tag);
+        return tagService.update(id, tag);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        service.delete(id);
+        tagService.delete(id);
+    }
+
+    /* ---------------- ADD TAG TO TASK ---------------- */
+
+    @PostMapping("/{tagId}/tasks/{taskId}")
+    public Tag addTagToTask(@PathVariable Long tagId, @PathVariable Long taskId) {
+        Tag tag = tagService.getById(tagId);
+        Task task = taskService.getById(taskId);
+
+        if (tag != null && task != null) {
+            task.getTags().add(tag);
+            taskService.create(task); // или update(taskId, task)
+        }
+
+        return tag;
     }
 }

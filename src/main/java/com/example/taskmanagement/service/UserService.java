@@ -1,4 +1,3 @@
-// UserService.java
 package com.example.taskmanagement.service;
 
 import com.example.taskmanagement.model.User;
@@ -16,15 +15,21 @@ public class UserService {
         this.repository = repository;
     }
 
-    public List<User> getAll() { return repository.findAll(); }
+    public List<User> getAll() {
+        return repository.findAll();
+    }
 
-    public User getById(Long id) { return repository.findById(id).orElse(null); }
+    public User getById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
 
-    public User create(User user) { return repository.save(user); }
+    public User create(User user) {
+        return repository.save(user);
+    }
 
     public User update(Long id, User updatedUser) {
         Optional<User> userOpt = repository.findById(id);
-        if(userOpt.isPresent()) {
+        if (userOpt.isPresent()) {
             User user = userOpt.get();
             user.setName(updatedUser.getName());
             user.setProjects(updatedUser.getProjects());
@@ -33,5 +38,7 @@ public class UserService {
         return null;
     }
 
-    public void delete(Long id) { repository.deleteById(id); }
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
 }

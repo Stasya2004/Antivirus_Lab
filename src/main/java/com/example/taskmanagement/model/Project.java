@@ -2,12 +2,15 @@ package com.example.taskmanagement.model;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "projects")
 public class Project {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -19,8 +22,8 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    @JsonIgnoreProperties({"projects", "tasks"}) // скрываем проекты и задачи пользователя
-    private List<User> users;
+    @JsonIgnoreProperties({"projects", "tasks"})
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "project")
     @JsonIgnoreProperties({"project", "users"}) // скрываем проект и пользователей у задач

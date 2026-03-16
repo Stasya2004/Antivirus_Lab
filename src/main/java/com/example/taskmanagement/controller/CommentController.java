@@ -10,34 +10,39 @@ import java.util.List;
 @RequestMapping("/comments")
 public class CommentController {
 
-    private final CommentService service;
+    private final CommentService commentService;
 
-    public CommentController(CommentService service) {
-        this.service = service;
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
     }
 
+    /* ---------------- GET ALL ---------------- */
     @GetMapping
     public List<Comment> getAll() {
-        return service.getAll();
+        return commentService.getAll();
     }
 
+    /* ---------------- GET BY ID ---------------- */
     @GetMapping("/{id}")
     public Comment getById(@PathVariable Long id) {
-        return service.getById(id);
+        return commentService.getById(id);
     }
 
+    /* ---------------- CREATE ---------------- */
     @PostMapping
     public Comment create(@RequestBody Comment comment) {
-        return service.create(comment);
+        return commentService.create(comment);
     }
 
+    /* ---------------- UPDATE ---------------- */
     @PutMapping("/{id}")
     public Comment update(@PathVariable Long id, @RequestBody Comment comment) {
-        return service.update(id, comment);
+        return commentService.update(id, comment);
     }
 
+    /* ---------------- DELETE ---------------- */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        service.delete(id);
+        commentService.delete(id);
     }
 }

@@ -45,7 +45,7 @@ public class UserService {
 
     public User create(User user) {
 
-        // 🔐 обязательно хешируем пароль
+        // Хешируем пароль
         if (user.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -67,6 +67,7 @@ public class UserService {
         if (request.getUsername() != null) {
             user.setUsername(request.getUsername());
         }
+
 
         if (request.getRole() != null) {
             user.setRole(request.getRole());

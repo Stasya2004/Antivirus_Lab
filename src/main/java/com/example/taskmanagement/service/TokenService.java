@@ -49,7 +49,7 @@ public class TokenService {
     }
 
     @Transactional
-    public TokenPair refreshTokens(String refreshToken) {
+    public TokenPair  refreshTokens(String refreshToken) {
         // 1. Проверить валидность токена (подпись, срок)
         if (!tokenProvider.validateRefreshToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");

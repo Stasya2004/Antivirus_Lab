@@ -1,6 +1,9 @@
 package com.example.taskmanagement.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
@@ -18,12 +21,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Имя не может быть пустым")
     @Column(nullable = false)
     private String name;
 
+    @NotBlank(message = "Email (логин) обязателен")
+    @Email(message = "Некорректный формат email")
     @Column(nullable = false, unique = true)
     private String username;
 
+    @NotBlank(message = "Пароль обязателен")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$",
+            message = "Пароль должен содержать минимум 8 символов, включать цифру, строчную и заглавную букву, а также спецсимвол (@#$%^&+=!)"
+    )
     @Column(nullable = false)
     private String password;
 

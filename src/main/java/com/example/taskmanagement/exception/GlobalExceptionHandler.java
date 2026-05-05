@@ -1,22 +1,16 @@
 package com.example.taskmanagement.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import jakarta.persistence.EntityNotFoundException;  // заменили javax на jakarta
 
 import java.util.Map;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-    @ExceptionHandler(DuplicateAssignmentException.class)
-    public ResponseEntity<String> handleDuplicate(DuplicateAssignmentException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleNotFound(EntityNotFoundException ex) {

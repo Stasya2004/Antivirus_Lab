@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class TokenService {
@@ -25,32 +24,27 @@ public class TokenService {
 
     @Transactional
     public TokenPair createTokenPair(UserDetails userDetails, User user) {
-        // Создаем запись сессии с refresh токеном
-        String refreshToken = tokenProvider.generateRefreshToken(userDetails, null); // sessionId пока null
+        // Сначала создаём сессию с временным refresh-токеном (без sessionId)
+        String tempRefreshToken = tokenProvider.generateRefreshToken(userDetails, null);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiresAt = now.plusSeconds(tokenProvider.getRefreshExpirationMs() / 1000);
 
-        UserSession session = new UserSession(user, refreshToken, now, expiresAt);
-        session = sessionRepository.save(session); // после сохранения получаем id
+        UserSession session = new UserSession(user, tempRefreshToken, now, expiresAt);
+        session = sessionRepository.save(session);
 
-        // Генерируем refresh токен заново с sessionId (или можно обновить claim)
-        refreshToken = tokenProvider.generateRefreshToken(userDetails, session.getId());
+        // Генерируем финальный refresh-токен с реальным sessionId
+        String refreshToken = tokenProvider.generateRefreshToken(userDetails, session.getId());
         session.setRefreshToken(refreshToken);
         sessionRepository.save(session);
 
-        // Генерируем access токен
-        String accessToken = tokenProvider.generateAccessToken(
-                userDetails,
-                user.getId(),
-                user.getRole().name()
-        );
+        String accessToken = tokenProvider.generateAccessToken(userDetails, user.getId(), user.getRole().name());
 
         return new TokenPair(accessToken, refreshToken);
     }
 
     @Transactional
-    public TokenPair  refreshTokens(String refreshToken) {
-        // 1. Проверить валидность токена (подпись, срок)
+    public TokenPair refreshTokens(String refreshToken) {
+        // 1. Проверить валидность refresh-токена
         if (!tokenProvider.validateRefreshToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
@@ -64,7 +58,7 @@ public class TokenService {
             throw new RuntimeException("Session is not active");
         }
 
-        // 4. Проверить, не истек ли срок сессии в БД (на случай рассинхрона)
+        // 4. Проверить срок действия сессии
         if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
             session.setStatus(SessionStatus.EXPIRED);
             sessionRepository.save(session);
@@ -78,15 +72,23 @@ public class TokenService {
                 .authorities(user.getRole().name())
                 .build();
 
-        // 5. Отозвать текущую сессию
+        // 5. Отозвать старую сессию
         session.setStatus(SessionStatus.REVOKED);
         sessionRepository.save(session);
 
-        // 6. Создать новую сессию и пару токенов
+        // 6. Создать новую пару токенов
         return createTokenPair(userDetails, user);
     }
 
-    // Вспомогательный класс для возврата пары токенов
+    @Transactional
+    public void revokeSession(String refreshToken) {
+        sessionRepository.findByRefreshToken(refreshToken)
+                .ifPresent(session -> {
+                    session.setStatus(SessionStatus.REVOKED);
+                    sessionRepository.save(session);
+                });
+    }
+
     public static class TokenPair {
         private final String accessToken;
         private final String refreshToken;
@@ -98,15 +100,5 @@ public class TokenService {
 
         public String getAccessToken() { return accessToken; }
         public String getRefreshToken() { return refreshToken; }
-    }
-
-    // Дополнительные методы: logout (отозвать сессию), очистка устаревших
-    @Transactional
-    public void revokeSession(String refreshToken) {
-        sessionRepository.findByRefreshToken(refreshToken)
-                .ifPresent(session -> {
-                    session.setStatus(SessionStatus.REVOKED);
-                    sessionRepository.save(session);
-                });
     }
 }

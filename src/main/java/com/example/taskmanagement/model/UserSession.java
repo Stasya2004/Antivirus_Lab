@@ -16,7 +16,7 @@ public class UserSession {
     private User user;
 
     @Column(nullable = false, unique = true, length = 500)
-    private String refreshToken;   // храним сам токен (или его хеш)
+    private String refreshToken;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -30,7 +30,6 @@ public class UserSession {
 
     private LocalDateTime lastUsedAt;
 
-    // конструкторы
     public UserSession() {}
 
     public UserSession(User user, String refreshToken, LocalDateTime createdAt, LocalDateTime expiresAt) {
@@ -41,7 +40,7 @@ public class UserSession {
         this.expiresAt = expiresAt;
     }
 
-    // геттеры и сеттеры
+    // Геттеры и сеттеры
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

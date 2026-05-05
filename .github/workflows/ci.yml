@@ -2,9 +2,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main", "lab6" ]
+    branches: [ "main", "lab*" ]
   pull_request:
-    branches: [ "main", "lab6" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -19,19 +19,32 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
 
-      - name: Decode keystore from secrets
+      - name: Decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > src/main/resources/keystore.p12
+        run: echo "$KEYSTORE_BASE64" | base64 -d > src/main/resources/keystore.p12
 
-      - name: Build with Maven
-        run: mvn clean package
+      # 1. Компиляция
+      - name: Compile
+        run: mvn compile
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
+      # 2. Тестирование
+      - name: Test
+        run: mvn test
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # 3. Упаковка (jar)
+      - name: Package
+        run: mvn package -DskipTests
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      # 4. Загрузка артефакта в хранилище
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: task-management-app
+          name: antivirus-app
           path: target/*.jar

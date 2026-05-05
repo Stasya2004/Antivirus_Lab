@@ -3,7 +3,6 @@ package com.example.taskmanagement.controller;
 import com.example.taskmanagement.model.Role;
 import com.example.taskmanagement.model.User;
 import com.example.taskmanagement.repository.UserRepository;
-import com.example.taskmanagement.security.JwtTokenProvider;
 import com.example.taskmanagement.service.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody User user, BindingResult bindingResult) {
-        // Проверка ошибок валидации
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
@@ -48,14 +46,12 @@ public class AuthController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        // Дополнительная проверка: убедимся, что email ещё не занят
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("username", "Пользователь с таким email уже существует"));
         }
 
-        // Хешируем пароль и сохраняем
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getRole() == null) {
             user.setRole(Role.ROLE_USER);
@@ -89,7 +85,6 @@ public class AuthController {
         return tokenService.refreshTokens(refreshToken);
     }
 
-    // Опционально: logout
     @PostMapping("/logout")
     public String logout(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");

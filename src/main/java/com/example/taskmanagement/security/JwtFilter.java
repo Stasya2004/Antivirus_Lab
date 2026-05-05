@@ -19,50 +19,42 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-        this.jwtService = jwtService;
+    public JwtFilter(JwtTokenProvider tokenProvider, UserDetailsService userDetailsService) {
+        this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
-        // 1. Извлекаем заголовок Authorization
         final String authHeader = request.getHeader("Authorization");
 
-        // Если заголовка нет или он не начинается с "Bearer ", пропускаем дальше
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Вырезаем сам токен
         final String jwt = authHeader.substring(7);
         final String username;
 
         try {
-            // 3. Пытаемся извлечь username из Access‑токена
-            username = jwtService.extractUsernameFromAccess(jwt);
+            username = tokenProvider.extractUsername(jwt, JwtTokenProvider.TokenType.ACCESS);
         } catch (JwtException e) {
-            // Токен невалиден (подпись, формат, срок) → 401
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid access token");
             return;
         }
 
-        // 4. Если username есть и аутентификация ещё не установлена
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            // 5. Проверяем валидность токена (подпись, срок, соответствие пользователю)
-            if (jwtService.isAccessTokenValid(jwt, userDetails)) {
+            if (tokenProvider.validateAccessToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -71,14 +63,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
-                // Токен не прошёл полную проверку (например, истёк)
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Access token expired or invalid");
                 return;
             }
         }
 
-        // 6. Пропускаем запрос дальше по цепочке
         filterChain.doFilter(request, response);
     }
 }

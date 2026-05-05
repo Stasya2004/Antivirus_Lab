@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -109,5 +110,9 @@ public class UserService {
         }
 
         repository.deleteById(id);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return repository.findByUsername(username);
     }
 }

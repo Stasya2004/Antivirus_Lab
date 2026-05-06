@@ -19,10 +19,18 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
 
+      # Декодирование keystore для HTTPS
       - name: Decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: echo "$KEYSTORE_BASE64" | base64 -d > src/main/resources/keystore.p12
+
+      # Декодирование keystore для ЭЦП
+      - name: Decode keystore from secret
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > signing.jks
 
       # 1. Компиляция
       - name: Compile
@@ -48,3 +56,5 @@ jobs:
         with:
           name: antivirus-app
           path: target/*.jar
+
+

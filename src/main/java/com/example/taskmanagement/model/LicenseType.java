@@ -1,5 +1,6 @@
 package com.example.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class LicenseType {
     private String description;                   // описание типа лицензии
 
     @OneToMany(mappedBy = "type")
+    @JsonIgnore
     private List<License> licenses = new ArrayList<>(); // лицензии этого типа
 
     // Конструкторы

@@ -1,5 +1,6 @@
 package com.example.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Product {
     private Boolean isBlocked = false;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<License> licenses = new ArrayList<>();
 
     // Конструкторы

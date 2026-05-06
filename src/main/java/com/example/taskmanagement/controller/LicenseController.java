@@ -68,9 +68,14 @@ public class LicenseController {
      * }
      */
     @PostMapping("/activate")
-    public DeviceLicense activateLicense(@RequestBody Map<String, Object> body) {
+    public DeviceLicense activateLicense(Authentication authentication,
+                                         @RequestBody Map<String, Object> body) {
+        String username = authentication.getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long userId = user.getId();   // вместо чтения из body
+
         String licenseCode = (String) body.get("licenseCode");
-        Long userId = Long.valueOf(body.get("userId").toString());
         String deviceId = (String) body.get("deviceId");
         return licenseService.activateLicense(licenseCode, userId, deviceId);
     }

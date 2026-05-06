@@ -1,5 +1,7 @@
 package com.example.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,10 +21,12 @@ public class License {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
+    @JsonIgnoreProperties("licenses")
     private Product product;                  // продукт, на который выдана лицензия
 
     @ManyToOne
     @JoinColumn(name = "type_id")
+    @JsonIgnoreProperties("licenses")
     private LicenseType type;                 // тип лицензии (TRIAL, PAID, SUBSCRIPTION)
 
     @Column(name = "owner_id")
@@ -49,6 +53,7 @@ public class License {
     private LocalDateTime updatedAt;          // дата последнего обновления
 
     @OneToMany(mappedBy = "license", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DeviceLicense> activations = new ArrayList<>();
 
     // Конструкторы

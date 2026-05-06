@@ -1,5 +1,6 @@
 package com.example.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -13,10 +14,12 @@ public class DeviceLicense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "license_id", nullable = false)
+    @JsonIgnoreProperties("activations")
     private License license;          // ссылка на лицензию
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties("deviceLicenses")
     private User user;                // пользователь, активировавший лицензию
 
     @ManyToOne(fetch = FetchType.LAZY)

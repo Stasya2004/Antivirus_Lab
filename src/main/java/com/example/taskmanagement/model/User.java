@@ -1,5 +1,6 @@
 package com.example.taskmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -56,6 +57,7 @@ public class User {
 
     // Связь с активациями лицензий (опционально, для JPA)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DeviceLicense> deviceLicenses = new ArrayList<>();
 
     // --- Конструкторы ---

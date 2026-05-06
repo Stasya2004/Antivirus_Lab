@@ -3,6 +3,7 @@ package com.example.taskmanagement.security;
 import com.example.taskmanagement.dto.Ticket;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +15,10 @@ public class TicketSigner {
     @Value("${ticket.signing.secret}")
     private String secret;
 
+    /**
+     * Формирует подпись для тикета на основе его полей.
+     * Поля конкатенируются через символ '|'.
+     */
     public String sign(Ticket ticket) throws Exception {
         String data = ticket.getServerCurrentTime().toString() + "|" +
                 ticket.getTicketLifetimeSeconds() + "|" +
@@ -22,6 +27,7 @@ public class TicketSigner {
                 ticket.getUserId().toString() + "|" +
                 ticket.getDeviceId() + "|" +
                 ticket.getIsLicenseBlocked().toString();
+
         Mac mac = Mac.getInstance("HmacSHA256");
         SecretKeySpec keySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         mac.init(keySpec);
@@ -29,8 +35,10 @@ public class TicketSigner {
         return Base64.getEncoder().encodeToString(rawHmac);
     }
 
+    /**
+     * Проверяет подпись тикета.
+     */
     public boolean verify(Ticket ticket, String signature) throws Exception {
         return sign(ticket).equals(signature);
     }
 }
-

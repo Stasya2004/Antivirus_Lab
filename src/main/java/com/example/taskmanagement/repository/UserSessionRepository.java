@@ -12,11 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
-
     Optional<UserSession> findByRefreshToken(String refreshToken);
-
     List<UserSession> findAllByUserAndStatus(User user, SessionStatus status);
-
-    // Можно добавить метод для удаления старых сессий
     void deleteByExpiresAtBefore(LocalDateTime now);
 }

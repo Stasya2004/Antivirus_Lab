@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,153 +14,175 @@ import java.util.UUID;
 public class LicenseService {
 
     private final LicenseRepository licenseRepo;
+    private final ProductRepository productRepo;
+    private final LicenseTypeRepository typeRepo;
     private final DeviceRepository deviceRepo;
-    private final LicenseActivationRepository activationRepo;
+    private final DeviceLicenseRepository activationRepo;
     private final UserRepository userRepo;
+    private final LicenseHistoryRepository historyRepo;
 
     public LicenseService(LicenseRepository licenseRepo,
+                          ProductRepository productRepo,
+                          LicenseTypeRepository typeRepo,
                           DeviceRepository deviceRepo,
-                          LicenseActivationRepository activationRepo,
-                          UserRepository userRepo) {
+                          DeviceLicenseRepository activationRepo,
+                          UserRepository userRepo,
+                          LicenseHistoryRepository historyRepo) {
         this.licenseRepo = licenseRepo;
+        this.productRepo = productRepo;
+        this.typeRepo = typeRepo;
         this.deviceRepo = deviceRepo;
         this.activationRepo = activationRepo;
         this.userRepo = userRepo;
+        this.historyRepo = historyRepo;
     }
 
-    // ---------- 1. Создание лицензии (только админ) ----------
+    /**
+     * 1. Создание новой лицензии (только для администратора).
+     */
     @Transactional
-    public License createLicense(String productName, String licenseType,
-                                 Integer maxDevices, LocalDate expirationDate) {
+    public License createLicense(String productName, String typeName, Long ownerId,
+                                 Integer deviceCount, LocalDate endingDate, String description) {
+        Product product = productRepo.findByName(productName)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productName));
+        LicenseType type = typeRepo.findByName(typeName)
+                .orElseThrow(() -> new RuntimeException("License type not found: " + typeName));
+
         License license = new License();
-        license.setLicenseKey(generateLicenseKey());
-        license.setProductName(productName);
-        license.setLicenseType(licenseType);
-        license.setMaxDevices(maxDevices);
-        license.setExpirationDate(expirationDate);
+        license.setCode(generateLicenseCode());
+        license.setProduct(product);
+        license.setType(type);
+        license.setOwnerId(ownerId);
+        license.setDeviceCount(deviceCount);
+        license.setEndingDate(endingDate);
+        license.setBlocked(false);
+        license.setDescription(description);
         license.setCreatedAt(LocalDateTime.now());
         license.setUpdatedAt(LocalDateTime.now());
-        return licenseRepo.save(license);
+
+        License saved = licenseRepo.save(license);
+        addHistory(saved, "CREATED", ownerId, "License created with code " + saved.getCode());
+        return saved;
     }
 
-    private String generateLicenseKey() {
-        return "LIC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    // ---------- 2. Активация лицензии ----------
+    /**
+     * 2. Активация лицензии пользователем на конкретном устройстве.
+     */
     @Transactional
-    public LicenseActivation activateLicense(String licenseKey, Long userId, String deviceId) {
-        // 1. Найти лицензию
-        License license = licenseRepo.findByLicenseKey(licenseKey)
-                .orElseThrow(() -> new RuntimeException("License not found"));
+    public DeviceLicense activateLicense(String licenseCode, Long userId, String deviceIdentifier) {
+        License license = licenseRepo.findByCode(licenseCode)
+                .orElseThrow(() -> new RuntimeException("License not found: " + licenseCode));
 
-        // 2. Проверить блокировку и срок действия
-        if (license.getIsBlocked()) {
+        if (license.getBlocked()) {
             throw new RuntimeException("License is blocked");
         }
-        if (license.getExpirationDate() != null && license.getExpirationDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("License expired");
+        if (license.getEndingDate() != null && license.getEndingDate().isBefore(LocalDate.now())) {
+            throw new RuntimeException("License has expired");
+        }
+        if (!license.getOwnerId().equals(userId)) {
+            throw new RuntimeException("License does not belong to this user");
         }
 
-        // 3. Найти или создать устройство
-        Device device = deviceRepo.findByDeviceIdentifier(deviceId)
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        Device device = deviceRepo.findByDeviceIdentifier(deviceIdentifier)
                 .orElseGet(() -> {
                     Device newDevice = new Device();
-                    newDevice.setDeviceIdentifier(deviceId);
+                    newDevice.setDeviceIdentifier(deviceIdentifier);
                     newDevice.setCreatedAt(LocalDateTime.now());
                     return deviceRepo.save(newDevice);
                 });
 
-        // 4. Найти пользователя
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // 5. Проверка дублирования активации (текущий пользователь + устройство + лицензия)
-        Optional<LicenseActivation> existingActivation = activationRepo
-                .findByLicenseAndUserAndDeviceAndStatus(license, user, device, "ACTIVE");
-        if (existingActivation.isPresent()) {
-            throw new RuntimeException("License already activated for this user and device");
-        }
-
-        // 6. Проверить лимит устройств (общее количество активных активаций по лицензии)
         long activeCount = activationRepo.countByLicenseAndStatus(license, "ACTIVE");
-        if (activeCount >= license.getMaxDevices()) {
-            throw new RuntimeException("Max devices limit reached");
+        if (activeCount >= license.getDeviceCount()) {
+            throw new RuntimeException("Maximum number of devices (" + license.getDeviceCount() + ") reached");
         }
 
-        // 7. Если лицензия активируется впервые – установить дату активации
-        if (license.getActivationDate() == null) {
-            license.setActivationDate(LocalDate.now());
+        if (activationRepo.existsByLicenseAndDeviceAndStatus(license, device, "ACTIVE")) {
+            throw new RuntimeException("License already active on this device");
+        }
+
+        if (license.getFirstActivationDate() == null) {
+            license.setFirstActivationDate(LocalDate.now());
             licenseRepo.save(license);
         }
 
-        // 8. Создать запись активации
-        LicenseActivation activation = new LicenseActivation();
+        DeviceLicense activation = new DeviceLicense();
         activation.setLicense(license);
         activation.setUser(user);
         activation.setDevice(device);
-        activation.setActivatedAt(LocalDateTime.now());
-        activation.setActivatedUntil(license.getExpirationDate());
         activation.setStatus("ACTIVE");
-        return activationRepo.save(activation);
+        activation.setChangeDate(LocalDateTime.now());
+        activation.setDescription("Activated from device " + deviceIdentifier);
+
+        DeviceLicense saved = activationRepo.save(activation);
+        addHistory(license, "ACTIVATED", userId, "Activated on device " + deviceIdentifier);
+        return saved;
     }
 
-    // ---------- 3. Проверка лицензии ----------
+    /**
+     * 3. Проверка, активна ли лицензия для данного пользователя и устройства.
+     */
     @Transactional(readOnly = true)
-    public boolean checkLicense(String licenseKey, Long userId, String deviceId) {
-        // 1. Найти лицензию
-        License license = licenseRepo.findByLicenseKey(licenseKey).orElse(null);
-        if (license == null || license.getIsBlocked()) return false;
-        if (license.getExpirationDate() != null && license.getExpirationDate().isBefore(LocalDate.now())) {
+    public boolean checkLicense(String licenseCode, Long userId, String deviceIdentifier) {
+        License license = licenseRepo.findByCode(licenseCode).orElse(null);
+        if (license == null) return false;
+        if (license.getBlocked()) return false;
+        if (license.getEndingDate() != null && license.getEndingDate().isBefore(LocalDate.now()))
             return false;
-        }
+        if (!license.getOwnerId().equals(userId)) return false;
 
-        // 2. Найти устройство
-        Device device = deviceRepo.findByDeviceIdentifier(deviceId).orElse(null);
+        Device device = deviceRepo.findByDeviceIdentifier(deviceIdentifier).orElse(null);
         if (device == null) return false;
 
-        // 3. Найти пользователя
-        User user = userRepo.findById(userId).orElse(null);
-        if (user == null) return false;
-
-        // 4. Найти активную активацию
-        Optional<LicenseActivation> activationOpt = activationRepo
-                .findByLicenseAndUserAndDeviceAndStatus(license, user, device, "ACTIVE");
-        if (activationOpt.isEmpty()) return false;
-
-        LicenseActivation activation = activationOpt.get();
-
-        // 5. Дополнительная проверка: активация не должна быть просрочена
-        if (activation.getActivatedUntil() != null &&
-                activation.getActivatedUntil().isBefore(LocalDate.now())) {
-            return false;
-        }
-        return true;
+        Optional<DeviceLicense> activation = activationRepo
+                .findByLicenseAndUserAndDeviceAndStatus(license,
+                        userRepo.findById(userId).orElse(null), device, "ACTIVE");
+        return activation.isPresent();
     }
 
-    // ---------- 4. Продление лицензии (админ) ----------
+    /**
+     * 4. Продление срока действия лицензии (только для администратора).
+     */
     @Transactional
-    public License extendLicense(String licenseKey, int additionalDays) {
-        License license = licenseRepo.findByLicenseKey(licenseKey)
-                .orElseThrow(() -> new RuntimeException("License not found"));
+    public License extendLicense(String licenseCode, int additionalDays) {
+        License license = licenseRepo.findByCode(licenseCode)
+                .orElseThrow(() -> new RuntimeException("License not found: " + licenseCode));
 
-        LocalDate newExpiration = license.getExpirationDate().plusDays(additionalDays);
-        license.setExpirationDate(newExpiration);
+        LocalDate newEnding = license.getEndingDate().plusDays(additionalDays);
+        license.setEndingDate(newEnding);
         license.setUpdatedAt(LocalDateTime.now());
+        License saved = licenseRepo.save(license);
 
-        // Обновить дату "действительна до" у всех активных активаций этой лицензии
-        List<LicenseActivation> activeActivations = activationRepo.findByLicenseAndStatus(license, "ACTIVE");
-        for (LicenseActivation act : activeActivations) {
-            act.setActivatedUntil(newExpiration);
-            activationRepo.save(act);
-        }
-
-        return licenseRepo.save(license);
+        // Обновлять device_license не требуется – проверка идёт по license.ending_date
+        addHistory(license, "EXTENDED", null,
+                String.format("Extended by %d days, new ending date %s", additionalDays, newEnding));
+        return saved;
     }
 
-    // ---------- 5. Найти активную активацию по пользователю и устройству (для выдачи тикета) ----------
+    /**
+     * 5. Поиск активной активации для формирования тикета.
+     */
     @Transactional(readOnly = true)
-    public Optional<LicenseActivation> findActiveActivation(Long userId, String deviceId) {
+    public Optional<DeviceLicense> findActiveActivation(Long userId, String deviceId) {
         return activationRepo.findByUser_IdAndDevice_DeviceIdentifierAndStatus(userId, deviceId, "ACTIVE");
+    }
+
+    // ------------------------------------------------------------------------
+    // Вспомогательные методы
+    // ------------------------------------------------------------------------
+    private String generateLicenseCode() {
+        return "LIC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private void addHistory(License license, String status, Long userId, String description) {
+        LicenseHistory history = new LicenseHistory();
+        history.setLicense(license);
+        history.setUserId(userId);
+        history.setStatus(status);
+        history.setChangeDate(LocalDateTime.now());
+        history.setDescription(description);
+        historyRepo.save(history);
     }
 }

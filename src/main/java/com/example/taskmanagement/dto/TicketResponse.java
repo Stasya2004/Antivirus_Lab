@@ -1,10 +1,14 @@
-package com.example.taskmanagement.dto; // или model, как вам удобнее
+package com.example.taskmanagement.dto;
 
+/**
+ * DTO для передачи подписанного тикета клиенту.
+ * Содержит сам тикет и его цифровую подпись (ЭЦП).
+ */
 public class TicketResponse {
     private Ticket ticket;
     private String signature;
 
-    // Конструктор по умолчанию (нужен для JPA/JSON)
+    // Конструктор по умолчанию (необходим для десериализации JSON)
     public TicketResponse() {}
 
     // Конструктор с параметрами

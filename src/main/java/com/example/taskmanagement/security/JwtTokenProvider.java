@@ -65,7 +65,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ---------- Извлечение информации ----------
+    // ---------- Извлечение данных ----------
     public String extractUsername(String token, TokenType type) {
         return extractClaim(token, Claims::getSubject, getKeyForType(type));
     }
@@ -83,7 +83,12 @@ public class JwtTokenProvider {
     }
 
     public String extractTokenType(String token) {
-        return extractClaim(token, claims -> claims.get("type", String.class), accessKey); // или refreshKey в зависимости от ожидаемого типа
+        // Пробуем извлечь тип сначала accessKey, потом refreshKey
+        try {
+            return extractClaim(token, claims -> claims.get("type", String.class), accessKey);
+        } catch (JwtException e) {
+            return extractClaim(token, claims -> claims.get("type", String.class), refreshKey);
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, Key key) {
@@ -103,7 +108,7 @@ public class JwtTokenProvider {
     public boolean validateAccessToken(String token, UserDetails userDetails) {
         try {
             final String username = extractUsername(token, TokenType.ACCESS);
-            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token, accessKey));
+            return username.equals(userDetails.getUsername()) && !isTokenExpired(token, accessKey);
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
@@ -123,16 +128,15 @@ public class JwtTokenProvider {
         return expiration.before(new Date());
     }
 
-    // Вспомогательный метод для выбора ключа по типу токена
     private Key getKeyForType(TokenType type) {
         return type == TokenType.ACCESS ? accessKey : refreshKey;
     }
 
-    public enum TokenType {
-        ACCESS, REFRESH
-    }
-
     public long getRefreshExpirationMs() {
         return refreshExpirationMs;
+    }
+
+    public enum TokenType {
+        ACCESS, REFRESH
     }
 }

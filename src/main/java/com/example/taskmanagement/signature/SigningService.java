@@ -21,5 +21,11 @@ public class SigningService {
         byte[] signatureBytes = sig.sign();
         return Base64.getEncoder().encodeToString(signatureBytes);
     }
-
+    public byte[] signBytes(byte[] data) throws Exception {
+        PrivateKey privateKey = keyProvider.getPrivateKey();
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initSign(privateKey);
+        sig.update(data);
+        return sig.sign();
+    }
 }

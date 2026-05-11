@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/signatures", "/signatures/increment").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/signatures/list").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/signatures/**").hasRole("ADMIN")  // всё остальное требует ADMIN
+                        .requestMatchers("/signatures/files/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

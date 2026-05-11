@@ -14,28 +14,29 @@ public class DeviceLicense {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "license_id", nullable = false)
-    @JsonIgnoreProperties("activations")
-    private License license;          // ссылка на лицензию
+    @JsonIgnoreProperties({"activations", "hibernateLazyInitializer"})
+    private License license;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties("deviceLicenses")
-    private User user;                // пользователь, активировавший лицензию
+    @JsonIgnoreProperties({"deviceLicenses", "password", "hibernateLazyInitializer"})
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", nullable = false)
-    private Device device;            // устройство, на котором активирована лицензия
+    @JsonIgnoreProperties({"deviceLicenses", "hibernateLazyInitializer"})
+    private Device device;
 
     @Column(nullable = false)
-    private String status;            // ACTIVE, REVOKED, EXPIRED
+    private String status;
 
     @Column(name = "change_date")
-    private LocalDateTime changeDate; // дата последнего изменения статуса
+    private LocalDateTime changeDate;
 
     @Column(columnDefinition = "TEXT")
-    private String description;       // описание (причина активации/отзыва и т.п.)
+    private String description;
 
-    // Конструкторы
+    // Конструкторы и остальные методы без изменений
     public DeviceLicense() {}
 
     public DeviceLicense(License license, User user, Device device,
@@ -48,64 +49,27 @@ public class DeviceLicense {
         this.description = description;
     }
 
-    // Геттеры и сеттеры
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public License getLicense() { return license; }
+    public void setLicense(License license) { this.license = license; }
 
-    public License getLicense() {
-        return license;
-    }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
-    public void setLicense(License license) {
-        this.license = license;
-    }
+    public Device getDevice() { return device; }
+    public void setDevice(Device device) { this.device = device; }
 
-    public User getUser() {
-        return user;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public LocalDateTime getChangeDate() { return changeDate; }
+    public void setChangeDate(LocalDateTime changeDate) { this.changeDate = changeDate; }
 
-    public Device getDevice() {
-        return device;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setDevice(Device device) {
-        this.device = device;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public LocalDateTime getChangeDate() {
-        return changeDate;
-    }
-
-    public void setChangeDate(LocalDateTime changeDate) {
-        this.changeDate = changeDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    // equals/hashCode по id
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -33,21 +33,17 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public User updateMyself(@RequestBody User request,
-                             Authentication auth) {
-        String username = auth.getName();
-        return userService.updateMyProfile(username, request);
+    public User updateMyself(@RequestBody User request, Authentication auth) {
+        return userService.updateMyProfile(auth.getName(), request);
     }
 
     @PutMapping("/{id}")
-    public User updateByAdmin(@PathVariable Long id,
-                              @RequestBody User request) {
+    public User updateByAdmin(@PathVariable Long id, @RequestBody User request) {
         return userService.updateByAdmin(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id,
-                       Authentication auth) {
+    public void delete(@PathVariable Long id, Authentication auth) {
         userService.deleteByAdmin(id, auth.getAuthorities());
     }
 }

@@ -24,7 +24,7 @@ public class TokenService {
 
     @Transactional
     public TokenPair createTokenPair(UserDetails userDetails, User user) {
-        // Сначала создаём сессию с временным refresh-токеном (без sessionId)
+        // Временно создаём сессию без sessionId в токене
         String tempRefreshToken = tokenProvider.generateRefreshToken(userDetails, null);
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiresAt = now.plusSeconds(tokenProvider.getRefreshExpirationMs() / 1000);
@@ -44,21 +44,17 @@ public class TokenService {
 
     @Transactional
     public TokenPair refreshTokens(String refreshToken) {
-        // 1. Проверить валидность refresh-токена
         if (!tokenProvider.validateRefreshToken(refreshToken)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        // 2. Найти сессию по токену
         UserSession session = sessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        // 3. Проверить статус сессии
         if (session.getStatus() != SessionStatus.ACTIVE) {
             throw new RuntimeException("Session is not active");
         }
 
-        // 4. Проверить срок действия сессии
         if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
             session.setStatus(SessionStatus.EXPIRED);
             sessionRepository.save(session);
@@ -72,11 +68,11 @@ public class TokenService {
                 .authorities(user.getRole().name())
                 .build();
 
-        // 5. Отозвать старую сессию
+        // Отзываем старую сессию
         session.setStatus(SessionStatus.REVOKED);
         sessionRepository.save(session);
 
-        // 6. Создать новую пару токенов
+        // Создаём новую пару токенов
         return createTokenPair(userDetails, user);
     }
 

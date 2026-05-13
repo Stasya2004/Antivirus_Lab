@@ -44,6 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
         final String username;
 
         try {
+            // Извлекаем username из access-токена
             username = tokenProvider.extractUsername(jwt, JwtTokenProvider.TokenType.ACCESS);
         } catch (JwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

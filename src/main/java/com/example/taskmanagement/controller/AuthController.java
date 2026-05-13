@@ -14,8 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/auth")
@@ -41,54 +41,42 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage())
-            );
+                    errors.put(error.getField(), error.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errors);
         }
 
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("username", "Пользователь с таким email уже существует"));
+            return ResponseEntity.badRequest().body(Map.of("username", "User with this email already exists"));
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRole() == null) {
-            user.setRole(Role.ROLE_USER);
-        }
+        if (user.getRole() == null) user.setRole(Role.ROLE_USER);
         userRepository.save(user);
-        return ResponseEntity.ok(Map.of("message", "Регистрация прошла успешно"));
+        return ResponseEntity.ok(Map.of("message", "Registration successful"));
     }
 
     @PostMapping("/login")
     public TokenService.TokenPair login(@RequestBody Map<String, String> credentials) {
-        String username = credentials.get("username");
-        String password = credentials.get("password");
-
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(credentials.get("username"), credentials.get("password"))
         );
-
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(credentials.get("username"))
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         return tokenService.createTokenPair(userDetails, user);
     }
 
     @PostMapping("/refresh")
     public TokenService.TokenPair refresh(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
-        if (refreshToken == null || refreshToken.isEmpty()) {
+        if (refreshToken == null || refreshToken.isEmpty())
             throw new RuntimeException("Refresh token is required");
-        }
         return tokenService.refreshTokens(refreshToken);
     }
 
     @PostMapping("/logout")
     public String logout(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        tokenService.revokeSession(refreshToken);
+        tokenService.revokeSession(request.get("refreshToken"));
         return "Logged out";
     }
 }

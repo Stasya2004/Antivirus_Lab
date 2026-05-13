@@ -1,0 +1,780 @@
+{
+  "info": {
+    "_postman_id": "6c2d19a5-7ac1-443e-a30d-f2a0b526646a",
+    "name": "antivirus",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "26203088"
+  },
+  "item": [
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "registration",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\":\"TestAdmin\",    \r\n    \"username\":\"admin@example.com\",\r\n    \"password\":\"Test123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/auth/register",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    //    \"username\":\"test@example.com\",\r\n        \"username\":\"admin@example.com\",\r\n    \"password\": \"Test123!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/auth/login",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIs...\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/auth/refresh",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIs...\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/auth/logout",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6NCwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzg0NDg0MzYsImV4cCI6MTc3ODQ0OTMzNn0.KLtnd_I8PICo5-QqCD6MD2SGfgNXxVu-pskJLAIWYWU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/users",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6NCwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzg0NDg0MzYsImV4cCI6MTc3ODQ0OTMzNn0.KLtnd_I8PICo5-QqCD6MD2SGfgNXxVu-pskJLAIWYWU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/users/2",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "users",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6NCwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzg0NDg0MzYsImV4cCI6MTc3ODQ0OTMzNn0.KLtnd_I8PICo5-QqCD6MD2SGfgNXxVu-pskJLAIWYWU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Новый пользователь\",\r\n  \"username\": \"new@example.com\",\r\n  \"password\": \"Test123!\",\r\n  \"role\": \"ROLE_USER\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/users",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6NCwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzg0NDg0MzYsImV4cCI6MTc3ODQ0OTMzNn0.KLtnd_I8PICo5-QqCD6MD2SGfgNXxVu-pskJLAIWYWU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Иван\",\r\n  \"username\": \"ivan@example.com\",\r\n  \"role\": \"ROLE_USER\",\r\n  \"isAccountLocked\": false\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/users/2",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "users",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6NCwic3ViIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJpYXQiOjE3Nzg0NDg0MzYsImV4cCI6MTc3ODQ0OTMzNn0.KLtnd_I8PICo5-QqCD6MD2SGfgNXxVu-pskJLAIWYWU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/users/",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "users",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "licenses",
+      "item": [
+        {
+          "name": "create",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ0OTQ5MywiZXhwIjoxNzc4NDUwMzkzfQ.vEGM6MELu0_-7mQlyES2pFzEBNtVqDWxvQuDzwmppfA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"productName\": \"Антивирус лаб\",\r\n  \"licenseType\": \"ПЛАТНАЯ\",\r\n  \"ownerId\": 3,\r\n  \"deviceCount\": 3,\r\n  \"expirationDate\": \"2026-12-31\",\r\n  \"description\": \"Годовая лицензия\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/licenses/create",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "licenses",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "activate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ0OTQ5MywiZXhwIjoxNzc4NDUwMzkzfQ.vEGM6MELu0_-7mQlyES2pFzEBNtVqDWxvQuDzwmppfA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"licenseCode\": \"LIC-E7369666\",\r\n  \"userId\": 3,   \r\n  \"deviceId\": \"device-001\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/licenses/activate",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "licenses",
+                "activate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "check",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ0OTQ5MywiZXhwIjoxNzc4NDUwMzkzfQ.vEGM6MELu0_-7mQlyES2pFzEBNtVqDWxvQuDzwmppfA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/licenses/check?licenseCode=LIC-E7369666&userId=3&deviceId=device-001",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "licenses",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "licenseCode",
+                  "value": "LIC-E7369666"
+                },
+                {
+                  "key": "userId",
+                  "value": "3"
+                },
+                {
+                  "key": "deviceId",
+                  "value": "device-001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "extend",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ0OTQ5MywiZXhwIjoxNzc4NDUwMzkzfQ.vEGM6MELu0_-7mQlyES2pFzEBNtVqDWxvQuDzwmppfA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"licenseCode\": \"LIC-E7369666\",\r\n  \"additionalDays\": 30\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/licenses/extend",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "licenses",
+                "extend"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ticket",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ0OTQ5MywiZXhwIjoxNzc4NDUwMzkzfQ.vEGM6MELu0_-7mQlyES2pFzEBNtVqDWxvQuDzwmppfA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/licenses/ticket?deviceId=device-001",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "licenses",
+                "ticket"
+              ],
+              "query": [
+                {
+                  "key": "deviceId",
+                  "value": "device-001"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "signatures",
+      "item": [
+        {
+          "name": "signatures",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwNDIyLCJleHAiOjE3Nzg0NTEzMjJ9.Mu-wHdoypJajQCTD0vvBi7T9fMSq5REK8cpaTguaanY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/signatures",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "increment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwNDIyLCJleHAiOjE3Nzg0NTEzMjJ9.Mu-wHdoypJajQCTD0vvBi7T9fMSq5REK8cpaTguaanY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/signatures/increment?since=2025-01-01T00:00:00Z",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "increment"
+              ],
+              "query": [
+                {
+                  "key": "since",
+                  "value": "2025-01-01T00:00:00Z"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "list",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwNDIyLCJleHAiOjE3Nzg0NTEzMjJ9.Mu-wHdoypJajQCTD0vvBi7T9fMSq5REK8cpaTguaanY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"ids\": [\"87c3fdbe-cd03-440e-b284-152a57a1a378\",\r\n    \"1abe9dc7-023e-4295-bb6c-fc725327acba\"]\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/signatures/list",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "list"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "signature",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwNDIyLCJleHAiOjE3Nzg0NTEzMjJ9.Mu-wHdoypJajQCTD0vvBi7T9fMSq5REK8cpaTguaanY",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"threatName\": \"Test\",\r\n    \"firstBytesHex\": \"4D5A9000\",\r\n    \"remainderHashHex\": \"a1b2c3d4e5f6\",\r\n    \"remainderLength\": 1024,\r\n    \"fileType\": \"exe\",\r\n    \"offsetStart\": 0,\r\n    \"offsetEnd\": 100\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/signatures",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "signature",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwODA0LCJleHAiOjE3Nzg0NTE3MDR9.IZZru2wZYtFG4hfrbs32D0GUb9TPiz6lxtTUI_qNuJw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"threatName\": \"Test V2\",\r\n    \"firstBytesHex\": \"4D5A9000\",\r\n    \"remainderHashHex\": \"a1b2c3d4e5f6\",\r\n    \"remainderLength\": 2048,\r\n    \"fileType\": \"dll\",\r\n    \"offsetStart\": 15,\r\n    \"offsetEnd\": 200\r\n  }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/signatures/1abe9dc7-023e-4295-bb6c-fc725327acba",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "1abe9dc7-023e-4295-bb6c-fc725327acba"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "signatures",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwODA0LCJleHAiOjE3Nzg0NTE3MDR9.IZZru2wZYtFG4hfrbs32D0GUb9TPiz6lxtTUI_qNuJw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/signatures/87c3fdbe-cd03-440e-b284-152a57a1a378",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "87c3fdbe-cd03-440e-b284-152a57a1a378"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "history",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwODA0LCJleHAiOjE3Nzg0NTE3MDR9.IZZru2wZYtFG4hfrbs32D0GUb9TPiz6lxtTUI_qNuJw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/signatures/87c3fdbe-cd03-440e-b284-152a57a1a378/history",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "87c3fdbe-cd03-440e-b284-152a57a1a378",
+                "history"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "audit",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwODA0LCJleHAiOjE3Nzg0NTE3MDR9.IZZru2wZYtFG4hfrbs32D0GUb9TPiz6lxtTUI_qNuJw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/signatures/87c3fdbe-cd03-440e-b284-152a57a1a378/audit",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "87c3fdbe-cd03-440e-b284-152a57a1a378",
+                "audit"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

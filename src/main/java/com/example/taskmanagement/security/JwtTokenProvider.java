@@ -83,7 +83,7 @@ public class JwtTokenProvider {
     }
 
     public String extractTokenType(String token) {
-        // Сначала пробуем accessKey, потом refreshKey (или наоборот)
+        // Пробуем извлечь тип сначала accessKey, потом refreshKey
         try {
             return extractClaim(token, claims -> claims.get("type", String.class), accessKey);
         } catch (JwtException e) {

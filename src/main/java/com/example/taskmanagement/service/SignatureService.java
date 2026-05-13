@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.PrivateKey;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +38,8 @@ public class SignatureService {
         this.auditRepository = auditRepository;
         this.signingService = signingService;
     }
+
+
 
     // 6.1 Получение всей базы (только ACTUAL)
     @Transactional(readOnly = true)

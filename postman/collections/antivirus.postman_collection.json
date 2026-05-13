@@ -509,7 +509,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUwNDIyLCJleHAiOjE3Nzg0NTEzMjJ9.Mu-wHdoypJajQCTD0vvBi7T9fMSq5REK8cpaTguaanY",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDUyNzE2LCJleHAiOjE3Nzg0NTM2MTZ9.zzizVlMP4Aqt1kQrAcXy_ijEzoLaMYIM7-_eoQ6BFdE",
                   "type": "string"
                 }
               ]
@@ -769,6 +769,214 @@
                 "signatures",
                 "87c3fdbe-cd03-440e-b284-152a57a1a378",
                 "audit"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "binary",
+      "item": [
+        {
+          "name": "actual",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDU0ODM3LCJleHAiOjE3Nzg0NTU3Mzd9.9OGm55G35QY231A53HtdlVaS32t5olH_yWUrjEaHb34",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:8085/api/binary/signatures/full",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "api",
+                "binary",
+                "signatures",
+                "full"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "increment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDU0ODM3LCJleHAiOjE3Nzg0NTU3Mzd9.9OGm55G35QY231A53HtdlVaS32t5olH_yWUrjEaHb34",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer <ADMIN_TOKEN>"
+              }
+            ],
+            "url": {
+              "raw": "https://localhost:8085/api/binary/signatures/increment?since=2025-01-01T00:00:00Z",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "api",
+                "binary",
+                "signatures",
+                "increment"
+              ],
+              "query": [
+                {
+                  "key": "since",
+                  "value": "2025-01-01T00:00:00Z"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ids",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDU0ODM3LCJleHAiOjE3Nzg0NTU3Mzd9.9OGm55G35QY231A53HtdlVaS32t5olH_yWUrjEaHb34",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"ids\":[\"87c3fdbe-cd03-440e-b284-152a57a1a378\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/api/binary/signatures/by-ids",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "api",
+                "binary",
+                "signatures",
+                "by-ids"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "minio",
+      "item": [
+        {
+          "name": "upload",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiIsInR5cGUiOiJhY2Nlc3MiLCJ1c2VySWQiOjQsInN1YiI6ImFkbWluQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc4NDU4NzA5LCJleHAiOjE3Nzg0NTk2MDl9.zWO9pYYTZ61GMrQ9JIVHzdl9jH5eeenCo1ACzWzPT6Y",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "uuid": "8c87a3f8-0a01-42cb-807f-6b242990f908",
+                  "src": "/C:/Users/nasty/Downloads/MediaGet Downloads/The Sims 4/Soundtrack/zblob.bin"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://localhost:8085/signatures/files/upload",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "files",
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "pre-signed",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidHlwZSI6ImFjY2VzcyIsInVzZXJJZCI6Mywic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsImlhdCI6MTc3ODQ1ODY3MiwiZXhwIjoxNzc4NDU5NTcyfQ.Tk2drrJtaZYcU1c2HWoEmYv1FJAIo_yW00F0lfThEug\",",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"ids\": [\"27432252-5b8e-4945-95c4-12b820053c55\"]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://localhost:8085/signatures/files/pre-signed-urls",
+              "protocol": "https",
+              "host": [
+                "localhost"
+              ],
+              "port": "8085",
+              "path": [
+                "signatures",
+                "files",
+                "pre-signed-urls"
               ]
             }
           },

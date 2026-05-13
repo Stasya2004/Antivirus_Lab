@@ -32,11 +32,6 @@ public class UserController {
         return userService.create(user);
     }
 
-    @PutMapping("/me")
-    public User updateMyself(@RequestBody User request, Authentication auth) {
-        return userService.updateMyProfile(auth.getName(), request);
-    }
-
     @PutMapping("/{id}")
     public User updateByAdmin(@PathVariable Long id, @RequestBody User request) {
         return userService.updateByAdmin(id, request);

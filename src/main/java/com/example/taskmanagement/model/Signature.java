@@ -42,6 +42,10 @@ public class Signature {
 
     @Column(name = "digital_signature_base64", nullable = false, columnDefinition = "TEXT")
     private String digitalSignatureBase64;
+    @Column(name = "minio_object_name")
+    private String minioObjectName;
+
+
 
     // Конструкторы, геттеры и сеттеры
     public Signature() {}
@@ -85,4 +89,7 @@ public class Signature {
     public void setStatus(SignatureStatus status) { this.status = status; }
     public String getDigitalSignatureBase64() { return digitalSignatureBase64; }
     public void setDigitalSignatureBase64(String digitalSignatureBase64) { this.digitalSignatureBase64 = digitalSignatureBase64; }
+
+    public String getMinioObjectName() { return minioObjectName; }
+    public void setMinioObjectName(String minioObjectName) { this.minioObjectName = minioObjectName; }
 }

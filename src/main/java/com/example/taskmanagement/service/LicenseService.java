@@ -44,24 +44,27 @@ public class LicenseService {
     public License createLicense(String productName, String typeName, Long ownerId,
                                  Integer deviceCount, LocalDate endingDate, String description) {
         Product product = productRepo.findByName(productName)
-                .orElseThrow(() -> new RuntimeException("Product not found: " + productName));
+                .orElseThrow(() -> new RuntimeException("Product not found"));
         LicenseType type = typeRepo.findByName(typeName)
-                .orElseThrow(() -> new RuntimeException("License type not found: " + typeName));
+                .orElseThrow(() -> new RuntimeException("License type not found"));
+        User owner = userRepo.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         License license = new License();
         license.setCode(generateLicenseCode());
         license.setProduct(product);
         license.setType(type);
-        license.setOwnerId(ownerId);
+        license.setOwner(owner);          // только владелец
+        license.setUser(null);            // пока не активирована
         license.setDeviceCount(deviceCount);
-        license.setEndingDate(endingDate);
+        license.setEndingDate(endingDate); // может быть задана вручную (если передали), но при активации пересчитается
         license.setBlocked(false);
         license.setDescription(description);
         license.setCreatedAt(LocalDateTime.now());
         license.setUpdatedAt(LocalDateTime.now());
 
         License saved = licenseRepo.save(license);
-        addHistory(saved, "CREATED", ownerId, "License created with code " + saved.getCode());
+        addHistory(saved, "CREATED", ownerId, "License created");
         return saved;
     }
 
@@ -71,20 +74,18 @@ public class LicenseService {
     @Transactional
     public DeviceLicense activateLicense(String licenseCode, Long userId, String deviceIdentifier) {
         License license = licenseRepo.findByCode(licenseCode)
-                .orElseThrow(() -> new RuntimeException("License not found: " + licenseCode));
+                .orElseThrow(() -> new RuntimeException("License not found"));
 
         if (license.getBlocked()) {
             throw new RuntimeException("License is blocked");
         }
-        if (license.getEndingDate() != null && license.getEndingDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("License has expired");
-        }
-        if (!license.getOwnerId().equals(userId)) {
+
+        // Проверка, что лицензия принадлежит этому пользователю (владельцу)
+        if (!license.getOwner().getId().equals(userId)) {
             throw new RuntimeException("License does not belong to this user");
         }
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        User user = userRepo.findById(userId).orElseThrow();
 
         Device device = deviceRepo.findByDeviceIdentifier(deviceIdentifier)
                 .orElseGet(() -> {
@@ -94,20 +95,32 @@ public class LicenseService {
                     return deviceRepo.save(newDevice);
                 });
 
+        // Проверка лимита устройств
         long activeCount = activationRepo.countByLicenseAndStatus(license, "ACTIVE");
         if (activeCount >= license.getDeviceCount()) {
-            throw new RuntimeException("Maximum number of devices (" + license.getDeviceCount() + ") reached");
+            throw new RuntimeException("Device limit reached");
         }
 
+        // Проверка, что на этом устройстве уже нет активной активации
         if (activationRepo.existsByLicenseAndDeviceAndStatus(license, device, "ACTIVE")) {
             throw new RuntimeException("License already active on this device");
         }
 
-        if (license.getFirstActivationDate() == null) {
+        // Логика первой активации
+        boolean isFirstActivation = (license.getUser() == null);
+        if (isFirstActivation) {
+            // Устанавливаем пользователя, активировавшего лицензию
+            license.setUser(user);
             license.setFirstActivationDate(LocalDate.now());
+
+            // Вычисляем дату окончания: дата первой активации + срок типа лицензии
+            int durationDays = license.getType().getDefaultDurationInDays(); // из license_type
+            license.setEndingDate(LocalDate.now().plusDays(durationDays));
+
             licenseRepo.save(license);
         }
 
+        // Создаём запись активации на устройстве
         DeviceLicense activation = new DeviceLicense();
         activation.setLicense(license);
         activation.setUser(user);
@@ -115,8 +128,8 @@ public class LicenseService {
         activation.setStatus("ACTIVE");
         activation.setChangeDate(LocalDateTime.now());
         activation.setDescription("Activated from device " + deviceIdentifier);
-
         DeviceLicense saved = activationRepo.save(activation);
+
         addHistory(license, "ACTIVATED", userId, "Activated on device " + deviceIdentifier);
         return saved;
     }
@@ -131,14 +144,14 @@ public class LicenseService {
         if (license.getBlocked()) return false;
         if (license.getEndingDate() != null && license.getEndingDate().isBefore(LocalDate.now()))
             return false;
-        if (!license.getOwnerId().equals(userId)) return false;
+        // Проверка, что лицензия активирована на этого пользователя (user_id == userId)
+        if (license.getUser() == null || !license.getUser().getId().equals(userId)) return false;
 
         Device device = deviceRepo.findByDeviceIdentifier(deviceIdentifier).orElse(null);
         if (device == null) return false;
 
         Optional<DeviceLicense> activation = activationRepo
-                .findByLicenseAndUserAndDeviceAndStatus(license,
-                        userRepo.findById(userId).orElse(null), device, "ACTIVE");
+                .findByLicenseAndUserAndDeviceAndStatus(license, userRepo.findById(userId).orElse(null), device, "ACTIVE");
         return activation.isPresent();
     }
 
@@ -148,14 +161,11 @@ public class LicenseService {
     @Transactional
     public License extendLicense(String licenseCode, int additionalDays) {
         License license = licenseRepo.findByCode(licenseCode)
-                .orElseThrow(() -> new RuntimeException("License not found: " + licenseCode));
-
+                .orElseThrow(() -> new RuntimeException("License not found"));
         LocalDate newEnding = license.getEndingDate().plusDays(additionalDays);
         license.setEndingDate(newEnding);
         license.setUpdatedAt(LocalDateTime.now());
         License saved = licenseRepo.save(license);
-
-        // Обновлять device_license не требуется – проверка идёт по license.ending_date
         addHistory(license, "EXTENDED", null,
                 String.format("Extended by %d days, new ending date %s", additionalDays, newEnding));
         return saved;

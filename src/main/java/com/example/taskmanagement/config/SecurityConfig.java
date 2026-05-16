@@ -4,6 +4,7 @@ import com.example.taskmanagement.security.CustomUserDetailsService;
 import com.example.taskmanagement.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,8 +38,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/users/**").hasRole("ADMIN")
-                        .requestMatchers("/licenses/activate", "/licenses/check", "/licenses/ticket").authenticated()
-                        .requestMatchers("/licenses/create", "/licenses/extend").hasRole("ADMIN")
+                        // Сигнатуры: чтение – USER и ADMIN, запись – только ADMIN
+                        .requestMatchers(HttpMethod.GET, "/signatures", "/signatures/increment").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/signatures/list").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/signatures/**").hasRole("ADMIN")  // всё остальное требует ADMIN
+                        .requestMatchers("/signatures/files/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

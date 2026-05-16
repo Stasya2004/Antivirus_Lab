@@ -63,19 +63,6 @@ public class UserService {
         return repository.save(user);
     }
 
-    // ----------------- UPDATE (свой профиль) -----------------
-    public User updateMyProfile(String username, User request) {
-        User user = repository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-
-        if (request.getName() != null) user.setName(request.getName());
-        if (request.getPassword() != null && !request.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-        }
-        // Обычный пользователь не может менять роль и поля блокировки
-        return repository.save(user);
-    }
-
     // ----------------- DELETE -----------------
     public void deleteByAdmin(Long id, Collection<? extends GrantedAuthority> roles) {
         boolean isAdmin = roles.stream()

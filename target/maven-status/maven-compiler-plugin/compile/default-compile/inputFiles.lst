@@ -51,11 +51,11 @@ C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\Sign
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\SignatureService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\TokenService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\UserService.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\JsonCanonicalizer.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\KeyProvider.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\SignatureCanonicalizer.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\SignatureProperties.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\SigningService.java
-C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\TicketCanonicalizer.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\TaskManagementApplication.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\util\BinaryWriter.java
 C:\Education\Antivirus_Lab\src\main\java\org\example\Main.java

@@ -5,14 +5,15 @@ import com.example.taskmanagement.dto.TicketResponse;
 import com.example.taskmanagement.model.DeviceLicense;
 import com.example.taskmanagement.model.License;
 import com.example.taskmanagement.model.User;
+import com.example.taskmanagement.signature.JsonCanonicalizer;
 import com.example.taskmanagement.signature.SigningService;
-import com.example.taskmanagement.signature.TicketCanonicalizer;
 import com.example.taskmanagement.service.LicenseService;
 import com.example.taskmanagement.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -24,13 +25,16 @@ public class LicenseController {
     private final LicenseService licenseService;
     private final UserService userService;
     private final SigningService signingService;
+    private final JsonCanonicalizer jsonCanonicalizer;   // добавлено
 
     public LicenseController(LicenseService licenseService,
                              UserService userService,
-                             SigningService signingService) {
+                             SigningService signingService,
+                             JsonCanonicalizer jsonCanonicalizer) {   // инжектируем
         this.licenseService = licenseService;
         this.userService = userService;
         this.signingService = signingService;
+        this.jsonCanonicalizer = jsonCanonicalizer;
     }
 
     @PostMapping("/create")
@@ -90,7 +94,9 @@ public class LicenseController {
         ticket.setDeviceId(deviceId);
         ticket.setIsLicenseBlocked(license.getBlocked());
 
-        byte[] canonicalBytes = TicketCanonicalizer.canonicalizeToBytes(ticket);
+        // Используем JsonCanonicalizer для получения канонической строки JSON
+        String canonicalJson = jsonCanonicalizer.canonizeJson(ticket);
+        byte[] canonicalBytes = canonicalJson.getBytes(StandardCharsets.UTF_8);
         String signature = signingService.sign(canonicalBytes);
 
         return new TicketResponse(ticket, signature);

@@ -16,6 +16,9 @@ com\example\taskmanagement\controller\AuthController.class
 com\example\taskmanagement\security\JwtTokenProvider.class
 com\example\taskmanagement\model\Signature.class
 com\example\taskmanagement\signature\KeyProvider.class
+com\example\taskmanagement\controller\UserController.class
+com\example\taskmanagement\model\UserSession.class
+com\example\taskmanagement\signature\JsonCanonicalizer.class
 com\example\taskmanagement\TaskManagementApplication.class
 com\example\taskmanagement\service\SignatureFileService.class
 com\example\taskmanagement\exception\GlobalExceptionHandler.class

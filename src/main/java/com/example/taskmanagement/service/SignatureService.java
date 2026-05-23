@@ -50,7 +50,7 @@ public class SignatureService {
                 .collect(Collectors.toList());
     }
 
-    // 6.2 Инкремент (updatedAt > since, включая DELETED)
+    // 6.2 Инкремент (updatedAt > since, включая ACTUAL и DELETED)
     @Transactional(readOnly = true)
     public List<SignatureResponse> getIncrement(Instant since) {
         List<SignatureStatus> statuses = List.of(SignatureStatus.ACTUAL, SignatureStatus.DELETED);
@@ -72,39 +72,43 @@ public class SignatureService {
     // 6.4 Создание
     @Transactional
     public SignatureResponse createSignature(SignatureRequest request) {
-        validateRequest(request); // кастомная валидация cross-field
+        validateRequest(request);
 
         Signature signature = new Signature();
         signature.setId(UUID.randomUUID());
         signature.setThreatName(request.getThreatName());
-        signature.setFirstBytesHex(request.getFirstBytesHex());
-        signature.setRemainderHashHex(request.getRemainderHashHex());
+        // Нормализация hex-строк в нижний регистр
+        signature.setFirstBytesHex(request.getFirstBytesHex().toLowerCase());
+        signature.setRemainderHashHex(request.getRemainderHashHex().toLowerCase());
         signature.setRemainderLength(request.getRemainderLength());
         signature.setFileType(request.getFileType());
         signature.setOffsetStart(request.getOffsetStart());
         signature.setOffsetEnd(request.getOffsetEnd());
         signature.setStatus(SignatureStatus.ACTUAL);
-        Instant now = Instant.now();
-        signature.setUpdatedAt(now);
 
-        // подпись
+        // 1. Генерируем подпись
         try {
-            byte[] canonical = SignatureCanonicalizer.canonicalize(request, SignatureStatus.ACTUAL);
+            byte[] canonical = SignatureCanonicalizer.canonicalize(signature);
             String digitalSignature = signingService.sign(canonical);
             signature.setDigitalSignatureBase64(digitalSignature);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate digital signature", e);
         }
 
+        // 2. Устанавливаем updatedAt ПОСЛЕ подписи
+        Instant now = Instant.now();
+        signature.setUpdatedAt(now);
+
+        // 3. Сохраняем
         Signature saved = signatureRepository.save(signature);
 
-        // аудит
+        // 4. Аудит
         createAudit(saved.getId(), getCurrentUsername(), now, null, "Создание сигнатуры");
 
         return toResponse(saved);
     }
 
-    // 6.5 Обновление
+    // 6.5 Обновление (исправлено)
     @Transactional
     public SignatureResponse updateSignature(UUID id, SignatureRequest request) {
         Signature existing = signatureRepository.findById(id)
@@ -113,36 +117,39 @@ public class SignatureService {
             throw new RuntimeException("Cannot update deleted signature");
         }
 
-        // Сохраняем текущую версию в историю
+        // 1. Сохраняем текущую версию в историю (до изменений)
         saveToHistory(existing);
 
-        // Определяем изменённые поля
+        // 2. Определяем реально изменённые поля (с учётом нормализации)
         List<String> changedFields = detectChanges(existing, request);
 
-        // Обновляем поля
+        // 3. Обновляем поля (нормализуем hex)
         existing.setThreatName(request.getThreatName());
-        existing.setFirstBytesHex(request.getFirstBytesHex());
-        existing.setRemainderHashHex(request.getRemainderHashHex());
+        existing.setFirstBytesHex(request.getFirstBytesHex().toLowerCase());
+        existing.setRemainderHashHex(request.getRemainderHashHex().toLowerCase());
         existing.setRemainderLength(request.getRemainderLength());
         existing.setFileType(request.getFileType());
         existing.setOffsetStart(request.getOffsetStart());
         existing.setOffsetEnd(request.getOffsetEnd());
         // статус остаётся ACTUAL
-        Instant now = Instant.now();
-        existing.setUpdatedAt(now);
 
-        // Пересчёт подписи
+        // 4. Генерируем новую подпись (updatedAt пока старый)
         try {
-            byte[] canonical = SignatureCanonicalizer.canonicalize(request, SignatureStatus.ACTUAL);
+            byte[] canonical = SignatureCanonicalizer.canonicalize(existing);
             String newSignature = signingService.sign(canonical);
             existing.setDigitalSignatureBase64(newSignature);
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate digital signature", e);
         }
 
+        // 5. Обновляем updatedAt ПОСЛЕ подписи
+        Instant now = Instant.now();
+        existing.setUpdatedAt(now);
+
+        // 6. Сохраняем
         Signature updated = signatureRepository.save(existing);
 
-        // Аудит с fieldsChanged
+        // 7. Аудит с полями изменений
         String fieldsChangedJson = null;
         if (!changedFields.isEmpty()) {
             try {
@@ -157,7 +164,7 @@ public class SignatureService {
         return toResponse(updated);
     }
 
-    // 6.6 Логическое удаление
+    // 6.6 Логическое удаление (исправлено)
     @Transactional
     public void deleteSignature(UUID id) {
         Signature existing = signatureRepository.findById(id)
@@ -166,15 +173,13 @@ public class SignatureService {
             throw new RuntimeException("Signature already deleted");
         }
 
-        // Сохраняем в историю
+        // 1. Сохраняем текущую версию в историю
         saveToHistory(existing);
 
-        // Меняем статус
+        // 2. Меняем статус
         existing.setStatus(SignatureStatus.DELETED);
-        Instant now = Instant.now();
-        existing.setUpdatedAt(now);
 
-        // Пересчёт подписи с новым статусом
+        // 3. Генерируем подпись с новым статусом (updatedAt пока старый)
         try {
             byte[] canonical = SignatureCanonicalizer.canonicalize(existing);
             String newSignature = signingService.sign(canonical);
@@ -183,9 +188,14 @@ public class SignatureService {
             throw new RuntimeException("Failed to generate digital signature", e);
         }
 
+        // 4. Обновляем updatedAt ПОСЛЕ подписи
+        Instant now = Instant.now();
+        existing.setUpdatedAt(now);
+
+        // 5. Сохраняем
         signatureRepository.save(existing);
 
-        // Аудит
+        // 6. Аудит
         createAudit(existing.getId(), getCurrentUsername(), now, null, "Логическое удаление сигнатуры");
     }
 
@@ -210,20 +220,29 @@ public class SignatureService {
     // ==================== Приватные вспомогательные методы ====================
 
     private void validateRequest(SignatureRequest request) {
-        // Дополнительные проверки, если нужно
         if (request.getOffsetEnd() < request.getOffsetStart()) {
             throw new IllegalArgumentException("offsetEnd must be >= offsetStart");
         }
-        // Длина firstBytesHex должна быть чётной (поскольку hex)
         if (request.getFirstBytesHex().length() % 2 != 0) {
             throw new IllegalArgumentException("firstBytesHex must have even length");
         }
+        // Проверка hex-символов (допускаем любой регистр)
+        if (!request.getFirstBytesHex().matches("^[0-9A-Fa-f]+$")) {
+            throw new IllegalArgumentException("firstBytesHex contains non-hex characters");
+        }
+        if (!request.getRemainderHashHex().matches("^[0-9A-Fa-f]+$")) {
+            throw new IllegalArgumentException("remainderHashHex contains non-hex characters");
+        }
     }
 
+    /**
+     * Сохраняет текущее состояние сигнатуры в историю.
+     * Вызывается ДО изменения основной записи.
+     */
     private void saveToHistory(Signature signature) {
         SignatureHistory history = new SignatureHistory();
         history.setSignatureId(signature.getId());
-        history.setVersionCreatedAt(Instant.now());
+        history.setVersionCreatedAt(Instant.now());  // время сохранения в историю
         history.setThreatName(signature.getThreatName());
         history.setFirstBytesHex(signature.getFirstBytesHex());
         history.setRemainderHashHex(signature.getRemainderHashHex());
@@ -231,13 +250,17 @@ public class SignatureService {
         history.setFileType(signature.getFileType());
         history.setOffsetStart(signature.getOffsetStart());
         history.setOffsetEnd(signature.getOffsetEnd());
-        history.setUpdatedAt(signature.getUpdatedAt());
+        history.setUpdatedAt(signature.getUpdatedAt());  // оригинальное updatedAt
         history.setStatus(signature.getStatus());
         history.setDigitalSignatureBase64(signature.getDigitalSignatureBase64());
         historyRepository.save(history);
     }
 
-    private void createAudit(UUID signatureId, String changedBy, Instant changedAt, String fieldsChanged, String description) {
+    /**
+     * Создаёт запись аудита.
+     */
+    private void createAudit(UUID signatureId, String changedBy, Instant changedAt,
+                             String fieldsChanged, String description) {
         SignatureAudit audit = new SignatureAudit();
         audit.setSignatureId(signatureId);
         audit.setChangedBy(changedBy);
@@ -247,15 +270,40 @@ public class SignatureService {
         auditRepository.save(audit);
     }
 
+    /**
+     * Определяет, какие поля реально изменились (с учётом нормализации регистра для hex).
+     */
     private List<String> detectChanges(Signature original, SignatureRequest request) {
         List<String> changes = new ArrayList<>();
+
+        System.out.println("=== DEBUG detectChanges ===");
+        System.out.println("original.threatName: '" + original.getThreatName() + "'");
+        System.out.println("request.threatName: '" + request.getThreatName() + "'");
+        System.out.println("original.firstBytesHex: '" + original.getFirstBytesHex() + "'");
+        System.out.println("request.firstBytesHex: '" + request.getFirstBytesHex() + "'");
+        System.out.println("original.firstBytesHex length: " + original.getFirstBytesHex().length());
+        System.out.println("request.firstBytesHex length: " + request.getFirstBytesHex().length());
+        System.out.println("equals: " + original.getFirstBytesHex().equals(request.getFirstBytesHex()));
+        System.out.println("equalsIgnoreCase: " + original.getFirstBytesHex().equalsIgnoreCase(request.getFirstBytesHex()));
+
         if (!original.getThreatName().equals(request.getThreatName())) changes.add("threatName");
-        if (!original.getFirstBytesHex().equals(request.getFirstBytesHex())) changes.add("firstBytesHex");
-        if (!original.getRemainderHashHex().equals(request.getRemainderHashHex())) changes.add("remainderHashHex");
-        if (!original.getRemainderLength().equals(request.getRemainderLength())) changes.add("remainderLength");
-        if (!original.getFileType().equals(request.getFileType())) changes.add("fileType");
-        if (!original.getOffsetStart().equals(request.getOffsetStart())) changes.add("offsetStart");
-        if (!original.getOffsetEnd().equals(request.getOffsetEnd())) changes.add("offsetEnd");
+        if (!original.getFirstBytesHex().equalsIgnoreCase(request.getFirstBytesHex())) changes.add("firstBytesHex");
+
+        if (!original.getRemainderHashHex().equalsIgnoreCase(request.getRemainderHashHex())) {
+            changes.add("remainderHashHex");
+        }
+        if (!original.getRemainderLength().equals(request.getRemainderLength())) {
+            changes.add("remainderLength");
+        }
+        if (!original.getFileType().equals(request.getFileType())) {
+            changes.add("fileType");
+        }
+        if (!original.getOffsetStart().equals(request.getOffsetStart())) {
+            changes.add("offsetStart");
+        }
+        if (!original.getOffsetEnd().equals(request.getOffsetEnd())) {
+            changes.add("offsetEnd");
+        }
         return changes;
     }
 
@@ -264,7 +312,7 @@ public class SignatureService {
         return auth != null ? auth.getName() : "system";
     }
 
-    // Маппинг в DTO
+    // ---------- Маппинг в DTO ----------
     private SignatureResponse toResponse(Signature signature) {
         SignatureResponse resp = new SignatureResponse();
         resp.setId(signature.getId());

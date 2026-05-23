@@ -13,6 +13,7 @@ public class SigningService {
         this.keyProvider = keyProvider;
     }
 
+    // Подпись в Base64
     public String sign(byte[] data) throws Exception {
         PrivateKey privateKey = keyProvider.getPrivateKey();
         Signature sig = Signature.getInstance("SHA256withRSA");
@@ -21,6 +22,8 @@ public class SigningService {
         byte[] signatureBytes = sig.sign();
         return Base64.getEncoder().encodeToString(signatureBytes);
     }
+
+    // Подпись в сырых байтах
     public byte[] signBytes(byte[] data) throws Exception {
         PrivateKey privateKey = keyProvider.getPrivateKey();
         Signature sig = Signature.getInstance("SHA256withRSA");

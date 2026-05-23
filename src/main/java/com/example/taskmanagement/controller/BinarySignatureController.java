@@ -47,21 +47,12 @@ public class BinarySignatureController {
 
     private ResponseEntity<LinkedMultiValueMap<String, Object>> buildMultipartResponse(byte[] manifest, byte[] data) {
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-
         body.add("manifest", new ByteArrayResource(manifest) {
-            @Override
-            public String getFilename() {
-                return "manifest.bin";
-            }
+            @Override public String getFilename() { return "manifest.bin"; }
         });
-
         body.add("data", new ByteArrayResource(data) {
-            @Override
-            public String getFilename() {
-                return "data.bin";
-            }
+            @Override public String getFilename() { return "data.bin"; }
         });
-
         return ResponseEntity.ok()
                 .contentType(MediaType.MULTIPART_MIXED)
                 .body(body);

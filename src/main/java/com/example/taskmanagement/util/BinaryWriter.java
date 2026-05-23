@@ -12,6 +12,8 @@ public class BinaryWriter {
         baos.write(value & 0xFF);
     }
 
+    //Порядок в байт как называется
+
     public void writeUint16(int value) {
         baos.write((value >>> 8) & 0xFF);
         baos.write(value & 0xFF);
@@ -42,7 +44,7 @@ public class BinaryWriter {
             throw new RuntimeException(e);
         }
     }
-
+// как правильно записать строку в бинарный формат
     public void writeString(String s) {
         if (s == null) s = "";
         byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);

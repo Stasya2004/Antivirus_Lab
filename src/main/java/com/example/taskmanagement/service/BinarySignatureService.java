@@ -21,8 +21,8 @@ public class BinarySignatureService {
     private final SignatureRepository signatureRepository;
     private final SigningService signingService;
 
-    private static final String MANIFEST_MAGIC = "MF-Ivanova";   // замените на свою фамилию
-    private static final String DATA_MAGIC = "DB-Ivanova";
+    private static final String MANIFEST_MAGIC = "MF-Parfenova";
+    private static final String DATA_MAGIC = "DB-Parfenova";
     private static final short VERSION = 1;
 
     public BinarySignatureService(SignatureRepository signatureRepository, SigningService signingService) {
@@ -108,7 +108,7 @@ public class BinarySignatureService {
         bw.writeUint64(sig.getRemainderLength());
         // fileType
         bw.writeString(sig.getFileType());
-        // offsetStart, offsetEnd
+        // offsetStart, offsetEnd ------------------------------------------
         bw.writeUint64(sig.getOffsetStart());
         bw.writeUint64(sig.getOffsetEnd());
         return bw.toByteArray();
@@ -141,6 +141,7 @@ public class BinarySignatureService {
             int statusCode = (sig.getStatus() == SignatureStatus.ACTUAL) ? 0 : 1;
             bw.writeUint8(statusCode);
             bw.writeUint64(sig.getUpdatedAt().toEpochMilli());
+        // что за оно
             bw.writeUint64(entry.getDataOffset());
             bw.writeUint32(entry.getDataLength());
             // recordSignatureLength и сама подпись (байты)

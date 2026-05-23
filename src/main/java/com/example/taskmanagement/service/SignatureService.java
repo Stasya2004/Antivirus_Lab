@@ -69,7 +69,7 @@ public class SignatureService {
     // 6.4 Создание
     @Transactional
     public SignatureResponse createSignature(SignatureRequest request) {
-        validateRequest(request); // кастомная валидация cross-field
+        validateRequest(request);
 
         Signature signature = new Signature();
         signature.setId(UUID.randomUUID());
@@ -82,11 +82,19 @@ public class SignatureService {
         signature.setOffsetEnd(request.getOffsetEnd());
         signature.setStatus(SignatureStatus.ACTUAL);
         Instant now = Instant.now();
-        signature.setUpdatedAt(now);
+   ---------     signature.setUpdatedAt(now);
+   /*
+   подпись
+   отличия истории от аудита сигнатории
+   обновление сигнатуры при гет аудит редактируются лишнее "firstBytesHex"
 
-        // подпись
+   лаб 3:
+   объяснить его файл
+    */
+
+        // Канонизируем саму сущность signature (поле digitalSignatureBase64 пока null)
         try {
-            byte[] canonical = SignatureCanonicalizer.canonicalize(request, SignatureStatus.ACTUAL);
+            byte[] canonical = SignatureCanonicalizer.canonicalize(signature);
             String digitalSignature = signingService.sign(canonical);
             signature.setDigitalSignatureBase64(digitalSignature);
         } catch (Exception e) {
@@ -95,7 +103,6 @@ public class SignatureService {
 
         Signature saved = signatureRepository.save(signature);
 
-        // аудит
         createAudit(saved.getId(), getCurrentUsername(), now, null, "Создание сигнатуры");
 
         return toResponse(saved);

@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"      # API (для подключения из приложения)
+      - "9002:9002"      # Web консоль (новый порт)
+    environment:
+      MINIO_ROOT_USER: rootadmin
+      MINIO_ROOT_PASSWORD: rootpassword123
+    command: server /data --console-address ":9002"
+    volumes:
+      - minio_data:/data
+volumes:
+  minio_data:

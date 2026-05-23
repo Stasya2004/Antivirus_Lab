@@ -36,6 +36,7 @@ public class User {
             message = "Пароль должен содержать минимум 8 символов, включать цифру, строчную и заглавную букву, а также спецсимвол (@#$%^&+=!)"
     )
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -57,9 +58,8 @@ public class User {
 
     // Связь с активациями лицензий (опционально, для JPA)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonIgnore   // убирает список активаций из ответа пользователя (разрывает цикл)
     private List<DeviceLicense> deviceLicenses = new ArrayList<>();
-
     // --- Конструкторы ---
     public User() {
     }

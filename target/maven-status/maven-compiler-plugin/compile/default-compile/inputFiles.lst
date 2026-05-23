@@ -1,7 +1,10 @@
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\config\MinioConfig.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\config\SecurityConfig.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\AuthController.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\BinarySignatureController.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\LicenseController.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\SignatureController.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\SignatureFileController.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\controller\UserController.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\dto\IdsRequest.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\dto\IncrementRequest.java
@@ -40,7 +43,11 @@ C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\repository\U
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\security\CustomUserDetailsService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\security\JwtFilter.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\security\JwtTokenProvider.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\BinarySignatureService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\LicenseService.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\ManifestEntryInfo.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\MinioService.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\SignatureFileService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\SignatureService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\TokenService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\service\UserService.java
@@ -50,4 +57,5 @@ C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\Si
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\SignatureProperties.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\signature\SigningService.java
 C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\TaskManagementApplication.java
+C:\Education\Antivirus_Lab\src\main\java\com\example\taskmanagement\util\BinaryWriter.java
 C:\Education\Antivirus_Lab\src\main\java\org\example\Main.java
